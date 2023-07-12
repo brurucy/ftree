@@ -25,7 +25,7 @@ crate, a two-level B-Tree, to very efficiently support vector-like indexing by p
 
 # Performance
 
-It's very performant. I have searched all over topcoder for all competitive programming fenwick tree performance tricks that there is, and put it
+It's very performant. I have searched all over codeforces for all competitive programming fenwick tree performance tricks that there are, and put them
 all in this crate.
 
 # Naming
