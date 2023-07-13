@@ -150,9 +150,9 @@ impl FenwickTree {
         while x > 0 {
             let lsb = least_significant_bit(x);
             let half_lsb = lsb / 2;
-            if x as usize <= length && self.inner[(x - 1) as usize] < prefix_sum {
+            if x <= length && self.inner[x - 1] < prefix_sum {
                 idx = x;
-                prefix_sum -= self.inner[(x - 1) as usize];
+                prefix_sum -= self.inner[x - 1];
                 x += half_lsb;
             } else {
                 if lsb % 2 > 0 {
@@ -161,7 +161,7 @@ impl FenwickTree {
                 x = x + half_lsb - lsb;
             }
         }
-        idx as usize
+        idx
     }
 }
 
