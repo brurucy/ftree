@@ -5,21 +5,15 @@ use alloc::vec::Vec;
 #[cfg(feature = "serde")]
 use serde::{Deserialize, Serialize};
 
-const fn least_significant_bit(idx: isize) -> isize {
-    return idx & -idx;
+const fn least_significant_bit(idx: usize) -> usize {
+    return idx & idx.wrapping_neg();
 }
 
-const fn most_significant_bit(idx: isize) -> isize {
-    let mut result = idx;
-
-    result |= result >> 1;
-    result |= result >> 2;
-    result |= result >> 4;
-    result |= result >> 8;
-    result |= result >> 16;
-    result |= result >> 32;
-
-    return result - (result >> 1);
+const fn most_significant_bit(idx: usize) -> usize {
+    if idx == 0 {
+        return 0;
+    }
+    return 1 << (usize::BITS - 1 - idx.leading_zeros());
 }
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
@@ -152,22 +146,22 @@ impl FenwickTree {
         let length = self.inner.len();
         let mut prefix_sum = prefix_sum;
         let mut idx = 0;
-        let mut x = most_significant_bit(length as isize) * 2;
+        let mut x = most_significant_bit(length) * 2;
         while x > 0 {
             let lsb = least_significant_bit(x);
             let half_lsb = lsb / 2;
-            if x as usize <= length && self.inner[(x - 1) as usize] < prefix_sum {
+            if x <= length && self.inner[x - 1] < prefix_sum {
                 idx = x;
-                prefix_sum -= self.inner[(x - 1) as usize];
+                prefix_sum -= self.inner[x - 1];
                 x += half_lsb;
             } else {
                 if lsb % 2 > 0 {
                     break;
                 }
-                x += half_lsb - lsb;
+                x = x + half_lsb - lsb;
             }
         }
-        idx as usize
+        idx
     }
 }
 
