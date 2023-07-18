@@ -1,4 +1,4 @@
-# indexset
+# ftree
 
 [![crates.io](https://img.shields.io/crates/v/ftree.svg)](https://crates.io/crates/ftree)
 [![docs](https://docs.rs/ftree/badge.svg)](https://docs.rs/ftree)
