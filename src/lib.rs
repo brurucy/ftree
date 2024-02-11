@@ -205,7 +205,10 @@ impl<T> FenwickTree<T> {
                     prefix_sum -= *value;
 
                     probe += half_lsb;
-                    continue;
+
+                    if half_lsb > 0 {
+                        continue;
+                    }
                 }
             }
 
