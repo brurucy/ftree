@@ -286,4 +286,13 @@ mod tests {
             .into_iter()
             .for_each(|(prefix_sum, idx)| assert_eq!(fenwick_array.index_of(prefix_sum), idx))
     }
+
+    #[test]
+    #[ntest::timeout(1000)]
+    fn test_zero_array() {
+        // test for a regression where index_of in an array containing only 0 would loop endlessly
+        let f0: FenwickTree<usize> = FenwickTree::from([0]);
+        assert_eq!(f0.prefix_sum(0, 0), 0);
+        assert_eq!(f0.index_of(1), 1);
+    }
 }

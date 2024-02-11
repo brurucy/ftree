@@ -14,5 +14,8 @@ readme = "README.md"
 [dependencies]
 serde = { version = "1.0.151", optional = true, features = ["derive"] }
 
+[dev-dependencies]
+ntest = "0.9"
+
 [features]
 serde = ["dep:serde"]
