@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 
+## [1.0.1] - 2024-02-17
+### Changed
+- Fixed a but that caused the ftree to loop forever. Thanks to @Cydhra
+
 ## [1.0.0] - 2023-07-14
 ### Changed
 - all APIs
@@ -21,7 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `FenwickTree`
 
 
-[Unreleased]: https://github.com/brurucy/indexset/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/brurucy/indexset/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/brurucy/indexset/releases/tag/v1.0.1
 [1.0.0]: https://github.com/brurucy/indexset/releases/tag/v1.0.0
 [0.1.1]: https://github.com/brurucy/indexset/releases/tag/v0.1.1
 [0.1.0]: https://github.com/brurucy/indexset/releases/tag/v0.1.0
