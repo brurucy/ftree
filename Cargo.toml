@@ -1,6 +1,6 @@
 [package]
 name = "ftree"
-version = "1.0.0"
+version = "1.0.1"
 edition = "2021"
 documentation = "https://docs.rs/ftree/"
 repository = "https://github.com/brurucy/ftree"
