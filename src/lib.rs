@@ -7,7 +7,7 @@ use core::ops::{AddAssign, SubAssign};
 use serde::{Deserialize, Serialize};
 
 #[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq, Ord, PartialOrd, Hash)]
 pub struct FenwickTree<T> {
     inner: Vec<T>,
 }
