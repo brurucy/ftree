@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 
+## [1.2.0] - 2024-11-09
+### Added
+- `push` and `pop` methods. Approach them with skepticism.
+
 ## [1.1.0] - 2024-05-24
 ### Added
 - `PartialEq`, `Eq`, `Ord`, `PartialOrd`, `Hash` trait derivations
@@ -29,7 +33,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `FenwickTree`
 
 
-[Unreleased]: https://github.com/brurucy/indexset/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/brurucy/indexset/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/brurucy/indexset/releases/tag/v1.2.0
 [1.1.0]: https://github.com/brurucy/indexset/releases/tag/v1.1.0
 [1.0.1]: https://github.com/brurucy/indexset/releases/tag/v1.0.1
 [1.0.0]: https://github.com/brurucy/indexset/releases/tag/v1.0.0

@@ -55,10 +55,8 @@ impl<const N: usize> From<[usize; N]> for FenwickTree<usize> {
 }
 
 impl<T> FenwickTree<T> {
-    /// Creates an empty(useless) fenwick tree.
+    /// Creates an empty fenwick tree.
     ///
-    /// You might be looking for the method `from_iter` instead, which is the only
-    /// way to create a useful fenwick tree.
     pub const fn new() -> Self {
         let inner = Vec::new();
 
@@ -141,6 +139,37 @@ impl<T> FenwickTree<T> {
             current_idx |= current_idx + 1;
         }
     }
+    /// Appends a new value to the end of the Fenwick tree.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ftree::FenwickTree;
+    ///
+    /// let mut fenwick_array = FenwickTree::from_iter([1, 6, 3].into_iter());
+    /// fenwick_array.push(9);
+    ///
+    /// // Check prefix sums after pushing
+    /// assert_eq!(fenwick_array.prefix_sum(1, 0), 1);  // sum of [1]
+    /// assert_eq!(fenwick_array.prefix_sum(2, 0), 7);  // sum of [1, 6]
+    /// assert_eq!(fenwick_array.prefix_sum(3, 0), 10); // sum of [1, 6, 3]
+    /// assert_eq!(fenwick_array.prefix_sum(4, 0), 19); // sum of [1, 6, 3, 9]
+    /// ```
+    pub fn push(&mut self, value: T)
+    where
+        T: Copy + AddAssign + Default,
+    {
+        let index = self.inner.len();
+        self.inner.push(value);
+
+        for i in 0..index {
+            let parent = i | (i + 1);
+            let parent_val = self.inner[i];
+            if parent == index {
+                self.inner[index] += parent_val;
+            }
+        }
+    }
     /// Subtracts a difference from a given index.
     ///
     /// # Examples
@@ -169,6 +198,48 @@ impl<T> FenwickTree<T> {
             *value -= diff;
             current_idx |= current_idx + 1;
         }
+    }
+    /// Removes the last element from the Fenwick tree.
+    ///
+    /// Returns `false` if the tree is empty, and true otherwise.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ftree::FenwickTree;
+    ///
+    /// let mut fenwick_array = FenwickTree::from_iter([1, 6, 3, 9].into_iter());
+    ///
+    /// assert_eq!(fenwick_array.pop(), true);  
+    /// assert_eq!(fenwick_array.prefix_sum(3, 0), 10);  // sum of remaining [1, 6, 3]
+    ///
+    /// // Can continue popping
+    /// assert_eq!(fenwick_array.pop(), true);
+    /// assert_eq!(fenwick_array.prefix_sum(2, 0), 7);   // sum of remaining [1, 6]
+    ///
+    /// // Returns false when empty
+    /// fenwick_array.pop();  // removes 6
+    /// fenwick_array.pop();  // removes 1
+    /// assert_eq!(fenwick_array.pop(), false);
+    /// ```
+    pub fn pop(&mut self) -> bool
+    where
+        T: Copy + SubAssign + AddAssign + Default,
+    {
+        if self.is_empty() {
+            return false;
+        }
+
+        let last_idx = self.inner.len() - 1;
+
+        let sum_excl = self.prefix_sum(last_idx, T::default());
+        let sum_incl = self.prefix_sum(last_idx + 1, T::default());
+        let mut reconstructed_value = sum_incl;
+        reconstructed_value -= sum_excl;
+
+        self.sub_at(last_idx, reconstructed_value);
+
+        self.inner.pop().is_some()
     }
     /// Given a sum, finds the slot in which in which it would be "contained" within the original
     /// array.
@@ -254,14 +325,13 @@ mod tests {
         let lengths = [1, 6, 3, 9, 2];
         let fenwick_array = FenwickTree::from_iter(lengths);
 
-        let cases: Vec<(usize, usize)> =
-            vec![(0, 0), (1, 1), (2, 7), (3, 10), (4, 19), (5, 21)];
+        let cases: Vec<(usize, usize)> = vec![(0, 0), (1, 1), (2, 7), (3, 10), (4, 19), (5, 21)];
         // The prefix sum up until the zeroth element is 0, since there is nothing before it
         // The prefix sum up until an index larger than the length is undefined, since every
         // element after the length - 1 is undefined
-        cases
-            .into_iter()
-            .for_each(|(idx, expected_sum)| assert_eq!(fenwick_array.prefix_sum(idx, 0), expected_sum))
+        cases.into_iter().for_each(|(idx, expected_sum)| {
+            assert_eq!(fenwick_array.prefix_sum(idx, 0), expected_sum)
+        })
     }
 
     #[test]
@@ -297,5 +367,101 @@ mod tests {
         let f0: FenwickTree<usize> = FenwickTree::from([0]);
         assert_eq!(f0.prefix_sum(0, 0), 0);
         assert_eq!(f0.index_of(1), 1);
+    }
+
+    #[test]
+    fn test_push_empty() {
+        let mut fenwick = FenwickTree::new();
+        fenwick.push(5);
+        assert_eq!(fenwick.inner, vec![5]);
+        assert_eq!(fenwick.prefix_sum(1, 0), 5);
+    }
+
+    #[test]
+    fn test_push_sequence() {
+        let mut fenwick = FenwickTree::new();
+        let values = [1, 6, 3, 9, 2];
+        let expected_sums = vec![(1, 1), (2, 7), (3, 10), (4, 19), (5, 21)];
+
+        for &v in values.iter() {
+            fenwick.push(v);
+        }
+
+        expected_sums
+            .into_iter()
+            .for_each(|(idx, expected_sum)| assert_eq!(fenwick.prefix_sum(idx, 0), expected_sum));
+    }
+
+    #[test]
+    fn test_push_after_initialization() {
+        let mut fenwick = FenwickTree::from_iter([1, 6, 3].into_iter());
+        fenwick.push(9);
+        fenwick.push(2);
+
+        let expected_sums = vec![(1, 1), (2, 7), (3, 10), (4, 19), (5, 21)];
+        expected_sums
+            .into_iter()
+            .for_each(|(idx, expected_sum)| assert_eq!(fenwick.prefix_sum(idx, 0), expected_sum));
+    }
+
+    #[test]
+    fn test_pop_empty() {
+        let mut fenwick: FenwickTree<usize> = FenwickTree::new();
+        assert_eq!(fenwick.pop(), false);
+    }
+
+    #[test]
+    fn test_pop_single() {
+        let mut fenwick = FenwickTree::from_iter([5].into_iter());
+        assert_eq!(fenwick.pop(), true);
+        assert!(fenwick.is_empty());
+    }
+
+    #[test]
+    fn test_pop_sequence() {
+        let mut fenwick = FenwickTree::from_iter([1, 6, 3, 9, 2].into_iter());
+        assert_eq!(fenwick.pop(), true);
+        assert_eq!(fenwick.pop(), true);
+        assert_eq!(fenwick.pop(), true);
+
+        assert_eq!(fenwick.prefix_sum(1, 0), 1);
+        assert_eq!(fenwick.prefix_sum(2, 0), 7);
+    }
+
+    #[test]
+    fn test_push_pop_alternating() {
+        let mut fenwick = FenwickTree::new();
+
+        fenwick.push(1);
+        fenwick.push(6);
+        assert_eq!(fenwick.pop(), true);
+        fenwick.push(3);
+        assert_eq!(fenwick.pop(), true);
+        fenwick.push(9);
+        fenwick.push(2);
+        assert_eq!(fenwick.pop(), true);
+
+        assert_eq!(fenwick.prefix_sum(1, 0), 1);
+        assert_eq!(fenwick.prefix_sum(2, 0), 10);
+    }
+
+    #[test]
+    fn test_zero_handling() {
+        let mut fenwick = FenwickTree::new();
+        fenwick.push(0);
+        fenwick.push(0);
+        assert_eq!(fenwick.pop(), true);
+        assert_eq!(fenwick.prefix_sum(1, 0), 0);
+    }
+
+    #[test]
+    fn test_negative_values() {
+        let mut fenwick: FenwickTree<i32> = FenwickTree::new();
+        fenwick.push(-1);
+        fenwick.push(2);
+        fenwick.push(-3);
+
+        assert_eq!(fenwick.pop(), true);
+        assert_eq!(fenwick.prefix_sum(2, 0), 1);
     }
 }
