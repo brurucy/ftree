@@ -162,12 +162,11 @@ impl<T> FenwickTree<T> {
         let index = self.inner.len();
         self.inner.push(value);
 
-        for i in 0..index {
-            let parent = i | (i + 1);
-            let parent_val = self.inner[i];
-            if parent == index {
-                self.inner[index] += parent_val;
-            }
+        let lower_one_bits = (!index).trailing_zeros();
+        for i in 0..lower_one_bits {
+            let child = index & !(1 << i);
+            let child_val = self.inner[child];
+            self.inner[index] += child_val;
         }
     }
     /// Subtracts a difference from a given index.
