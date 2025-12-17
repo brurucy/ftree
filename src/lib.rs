@@ -292,6 +292,59 @@ impl<T> FenwickTree<T> {
 
         index
     }
+    /// Given a sum, finds the slot in which in which it would be "contained" within the original
+    /// array. This method also returns the remainder.
+    ///
+    /// If the remainder is not needed, use [`Self::index_of()`] instead
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use ftree::FenwickTree;
+    ///
+    /// let lengths = [1, 6, 3, 9, 2];
+    /// let mut fenwick_array = FenwickTree::from_iter(lengths);
+    ///
+    /// let cases: Vec<(usize, (usize, usize))> = vec![(0, (0, 0)), (6, (1, 5)), (9, (2, 2)), (18, (3, 8)), (20, (4, 1))];
+    ///
+    /// cases
+    ///   .into_iter()
+    ///   .for_each(|(prefix_sum, idx)| assert_eq!(fenwick_array.index_of_with_remainder(prefix_sum), idx))
+    /// ```
+    pub fn index_of_with_remainder(&self, mut prefix_sum: T) -> (usize, T)
+    where
+        T: Copy + Ord + SubAssign,
+    {
+        let mut index = 0;
+        let mut probe = most_significant_bit(self.inner.len()) * 2;
+
+        while probe > 0 {
+            let lsb = least_significant_bit(probe);
+            let half_lsb = lsb / 2;
+            let other_half_lsb = lsb - half_lsb;
+
+            if let Some(value) = self.inner.get(probe - 1) {
+                if *value < prefix_sum {
+                    index = probe;
+                    prefix_sum -= *value;
+
+                    probe += half_lsb;
+
+                    if half_lsb > 0 {
+                        continue;
+                    }
+                }
+            }
+
+            if lsb % 2 > 0 {
+                break;
+            }
+
+            probe -= other_half_lsb;
+        }
+
+        (index, prefix_sum)
+    }
 }
 
 const fn least_significant_bit(n: usize) -> usize {
