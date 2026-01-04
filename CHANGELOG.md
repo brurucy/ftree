@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 
+## [1.3.0] - 2026-01-04
+### Changed
+- Made push O(log(n)). Thanks to @Moulberry!
+
 ## [1.2.0] - 2024-11-09
 ### Added
 - `push` and `pop` methods. Approach them with skepticism.
